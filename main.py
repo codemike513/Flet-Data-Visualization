@@ -75,6 +75,48 @@ class TimeChart(ft.UserControl):
         )
 
         super().__init__()
+    
+    def get_data_buttons(self, btn_name, data):
+        return ft.ElevatedButton(
+            btn_name,
+            color='white',
+            width=140,
+            height=40,
+            style=ft.ButtonStyle(
+            shape={"": ft.RoundedRectangleBorder(radius=6)},
+
+            ),
+            bgcolor='teal600',
+            data=data,
+            on_click=lambda e: self.toggle_data(e),
+
+        )
+    
+    def toggle_data(self, e):
+        self.switch_list(e)
+
+        self.chart.data_series = [self.line_chart]
+        self.get_data_points()
+    
+    def switch_list(self, e):
+        if e.control.data == 'gold':
+            self.points = GOLD
+
+        if e.control.data == 'btc':
+            self.points = BTC
+
+        self.data_points = []
+        self.chart.data_series = []
+        self.line_chart.data_points = self.data_points
+
+        self.chart.min_y=int(min(self.points, key=lambda y: y[1])[1])
+        self.chart.max_y=int(max(self.points, key=lambda y: y[1])[1])
+        self.chart.min_x=int(min(self.points, key=lambda x: x[0])[0])
+        self.chart.max_x=int(max(self.points, key=lambda x: x[0])[0])
+    
+        self.chart.update()
+        time.sleep(0.5)
+
 
     def create_data_points(self, x, y):
         return ft.LineChartDataPoint(
@@ -129,7 +171,10 @@ def main(page: ft.Page):
                     expand=1,
                     border_radius=6,
                     bgcolor=ft.colors.with_opacity(0.025, ft.colors.WHITE10),
-                    content=ft.Row(alignment="center", controls=[]),
+                    content=ft.Row(alignment="center", controls=[
+                        chart.get_data_buttons("Gold", 'gold'),
+                        chart.get_data_buttons("Bitcoin", 'btc'),
+                    ],),
                 ),
                 ft.Container(
                     expand=4,
@@ -143,6 +188,7 @@ def main(page: ft.Page):
     )
 
     page.update()
+    time.sleep(1)
     chart.get_data_points()
 
 
