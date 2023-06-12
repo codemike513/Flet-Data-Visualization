@@ -27,7 +27,7 @@ GOLD: list = [
     (22, 1980.40),
 ]
 
-BTC: list= [
+BTC: list = [
     (9, 0.0008),
     (10, 0.07),
     (11, 0.95),
@@ -61,9 +61,40 @@ class TimeChart(ft.UserControl):
             bottom_axis=ft.ChartAxis(labels_size=40, labels_interval=1),
         )
 
+        self.line_chart: ft.Control = ft.LineChartData(
+            color=ft.colors.GREEN,
+            stroke_width=2,
+            curved=True,
+            stroke_cap_round=True,
+            below_line_gradient=ft.LinearGradient(
+                begin=ft.alignment.top_center,
+                end=ft.alignment.bottom_center,
+                colors=[ft.colors.with_opacity(
+                    0.25, ft.colors.GREEN), "transparent"]
+            ),
+        )
+
         super().__init__()
 
+    def create_data_points(self, x, y):
+        return ft.LineChartDataPoint(
+            x,
+            y,
+            selected_below_line=ft.ChartPointLine(
+                width=0.5,
+                color="white54",
+                dash_pattern=[2, 4],
+            ),
+            selected_point=ft.ChartCirclePoint(stroke_width=1),
+        )
     
+    def get_data_points(self):
+        for x, y in self.points:
+            self.data_points.append(self.create_data_points(x, y))
+            self.chart.update()
+            time.sleep(0.05)
+
+
     def build(self):
 
         self.line_chart.data_points = self.data_points
@@ -73,9 +104,9 @@ class TimeChart(ft.UserControl):
             horizontal_alignment="center",
             controls=[
                 ft.Text(
-            "Yearly Historical Prices for Bitcoin and Gold",
-            size=16,
-            weight="bold",
+                    "Yearly Historical Prices for Bitcoin and Gold",
+                    size=16,
+                    weight="bold",
 
                 ),
                 self.chart,
@@ -104,13 +135,15 @@ def main(page: ft.Page):
                     expand=4,
                     border_radius=6,
                     bgcolor=ft.colors.with_opacity(0.025, ft.colors.WHITE10),
-                    content=chart, 
+                    content=chart,
+                    padding=20,
                 ),
             ]
         )
     )
 
     page.update()
+    chart.get_data_points()
 
 
 if __name__ == "__main__":
